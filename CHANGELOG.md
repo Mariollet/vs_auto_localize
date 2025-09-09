@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Custom icon**: Professional extension icon with Symfony branding
 - **Visual identity**: Better marketplace presentation and recognition
+- **MIT License**: Added proper LICENSE file for open source compliance
 
 ### Technical
 - Added `icon.png` (128x128px) for VS Code marketplace
+- Added `LICENSE` file with MIT license text
 - Enhanced package metadata for better discoverability
 
 ## [0.2.1] - 2025-09-09 🚀 **Rebranding Release**
