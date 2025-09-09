@@ -1,71 +1,36 @@
-# symfony-i18n-helper README
+# Symfony i18n Helper
 
-This is the README for your extension "symfony-i18n-helper". After writing up a brief description, we recommend including the following sections.
+Extension VS Code pour faciliter l'internationalisation avec Symfony. Permet d'ajouter rapidement des clés de traduction dans les fichiers YAML.
 
-## Features
+## Fonctionnalités
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Raccourci clavier** : `Ctrl+Alt+I` pour lancer la commande
+- **Sélection automatique** : Récupère le texte sélectionné dans l'éditeur
+- **Gestion YAML** : Ajoute les clés avec la bonne indentation et hiérarchie
+- **Configuration flexible** : Chemin du fichier de traduction configurable
 
-For example if there is an image subfolder under your extension project workspace:
+## Utilisation
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Sélectionnez le texte à traduire dans l'éditeur
+2. Appuyez sur `Ctrl+Alt+I` ou lancez la commande "Ajouter une clé i18n Symfony"
+3. Entrez la clé i18n (ex: `homepage.greeting`)
+4. La clé et la valeur sont automatiquement ajoutées au fichier YAML
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Configuration
 
-## Requirements
+Cette extension contribue aux paramètres suivants :
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+* `symfonyI18nHelper.translationFilePath`: Chemin relatif du fichier de traduction YAML (défaut: `translations/app.fr.yaml`)
 
-## Extension Settings
+## Installation
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Installez l'extension via le fichier `.vsix` :
+```bash
+code --install-extension symfony-i18n-helper-0.0.1.vsix
+```
 
-For example:
+## Notes de version
 
-This extension contributes the following settings:
+### 0.0.1
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Version initiale avec support YAML et raccourci clavier.
