@@ -1,8 +1,8 @@
 {
   "name": "symfony-i18n-helper",
   "displayName": "Symfony i18n Helper",
-  "description": "Facilite l’internationalisation avec Symfony : raccourci pour enregistrer la sélection, demander la clé i18n, autocomplétion, et sauvegarde dans le fichier de traduction configurable.",
-  "version": "0.0.1",
+  "description": "Extension pour faciliter l'internationalisation avec Symfony",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.103.0"
   },
@@ -28,18 +28,7 @@
         "key": "ctrl+alt+i",
         "when": "editorTextFocus"
       }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "Symfony i18n Helper",
-      "properties": {
-        "symfonyI18nHelper.translationFilePath": {
-          "type": "string",
-          "default": "translations/app.fr.yaml",
-          "description": "Chemin relatif du fichier de traduction Symfony YAML (ex: translations/app.fr.yaml)"
-        }
-      }
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

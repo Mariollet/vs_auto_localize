@@ -2,6 +2,10 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+interface TranslationConfig {
+    [language: string]: string;
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -34,15 +38,53 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		// Récupérer le chemin du fichier de traduction depuis les settings
-		const config = vscode.workspace.getConfiguration('symfonyI18nHelper');
-		const translationFilePath = config.get<string>('translationFilePath');
-		if (!translationFilePath) {
-			vscode.window.showErrorMessage('Chemin du fichier de traduction non configuré (symfonyI18nHelper.translationFilePath).');
+		// Récupérer la configuration des fichiers de traduction depuis .vscode/settings.json
+		const wsFolders = vscode.workspace.workspaceFolders;
+		if (!wsFolders) {
+			vscode.window.showErrorMessage('Aucun dossier ouvert dans l\'espace de travail.');
 			return;
 		}
+		
+		const workspaceConfig = vscode.workspace.getConfiguration();
+		let translationConfig = workspaceConfig.get<TranslationConfig>('symfonyI18nHelper.translationFilePath');
+		
+		if (!translationConfig) {
+			// Configuration par défaut si non configuré
+			translationConfig = {
+				"fr": "${workspaceFolder}/translations/app.fr.yaml",
+				"en": "${workspaceFolder}/translations/app.en.yaml"
+			};
+			
+			// Créer automatiquement .vscode/settings.json avec la configuration
+			try {
+				const vscodeDir = vscode.Uri.joinPath(wsFolders[0].uri, '.vscode');
+				const settingsFile = vscode.Uri.joinPath(vscodeDir, 'settings.json');
+				
+				let settingsContent = '{}';
+				try {
+					// Lire le fichier existant s'il existe
+					const existingContent = await vscode.workspace.fs.readFile(settingsFile);
+					settingsContent = existingContent.toString();
+				} catch (e) {
+					// Le fichier n'existe pas, créer le dossier .vscode
+					await vscode.workspace.fs.createDirectory(vscodeDir);
+				}
+				
+				// Parser et modifier le JSON
+				const settings = JSON.parse(settingsContent);
+				settings['symfonyI18nHelper.translationFilePath'] = translationConfig;
+				
+				// Écrire le fichier de configuration
+				const updatedContent = JSON.stringify(settings, null, 2);
+				await vscode.workspace.fs.writeFile(settingsFile, Buffer.from(updatedContent));
+				
+				vscode.window.showInformationMessage(`Configuration multi-langue créée dans .vscode/settings.json`);
+			} catch (err) {
+				vscode.window.showWarningMessage(`Impossible de créer .vscode/settings.json. Utilisation de la configuration par défaut.`);
+			}
+		}
 
-		// Demander la clé i18n à l’utilisateur (autocomplétion à améliorer)
+		// Demander la clé i18n à l'utilisateur (autocomplétion à améliorer)
 		const i18nKey = await vscode.window.showInputBox({
 			prompt: 'Entrez la clé i18n',
 			placeHolder: 'ex: homepage.title',
@@ -52,71 +94,91 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		// Écrire la clé/valeur dans le fichier de traduction
-		const wsFolders = vscode.workspace.workspaceFolders;
-		if (!wsFolders) {
-			vscode.window.showErrorMessage('Aucun dossier ouvert dans l’espace de travail.');
-			return;
-		}
-		const fileUri = vscode.Uri.joinPath(wsFolders[0].uri, translationFilePath);
-		try {
-			let fileContent = '';
-			try {
-				fileContent = (await vscode.workspace.fs.readFile(fileUri)).toString();
-			} catch (e) {
-				fileContent = '';
-			}
-			// Traiter la clé i18n pour YAML (ex: homepage.greeting -> homepage: greeting:)
-			const keyParts = i18nKey.split('.');
-			const lines = fileContent.split('\n');
+		// Fonction pour ajouter la clé YAML avec la bonne indentation
+		function addYamlKey(lines: string[], keyParts: string[], value: string): string[] {
+			let currentIndent = 0;
+			let insertIndex = lines.length;
 			
-			// Fonction pour ajouter la clé YAML avec la bonne indentation
-			function addYamlKey(lines: string[], keyParts: string[], value: string): string[] {
-				let currentIndent = 0;
-				let insertIndex = lines.length;
+			// Chercher si les clés parentes existent déjà
+			for (let i = 0; i < keyParts.length - 1; i++) {
+				const currentKey = keyParts[i];
+				const expectedIndent = i * 2; // 2 espaces par niveau
+				let keyFound = false;
 				
-				// Chercher si les clés parentes existent déjà
-				for (let i = 0; i < keyParts.length - 1; i++) {
-					const currentKey = keyParts[i];
-					const expectedIndent = i * 2; // 2 espaces par niveau
-					let keyFound = false;
+				for (let j = 0; j < lines.length; j++) {
+					const line = lines[j];
+					const lineIndent = line.search(/\S/);
 					
-					for (let j = 0; j < lines.length; j++) {
-						const line = lines[j];
-						const lineIndent = line.search(/\S/);
-						
-						if (lineIndent === expectedIndent && line.trim().startsWith(currentKey + ':')) {
-							keyFound = true;
-							currentIndent = expectedIndent + 2;
-							insertIndex = j + 1;
-							break;
-						}
-					}
-					
-					if (!keyFound) {
-						// Créer la clé parente manquante
-						const indent = ' '.repeat(expectedIndent);
-						lines.splice(insertIndex, 0, `${indent}${currentKey}:`);
-						insertIndex++;
+					if (lineIndent === expectedIndent && line.trim().startsWith(currentKey + ':')) {
+						keyFound = true;
 						currentIndent = expectedIndent + 2;
+						insertIndex = j + 1;
+						break;
 					}
 				}
 				
-				// Ajouter la clé finale avec sa valeur
-				const finalKey = keyParts[keyParts.length - 1];
-				const indent = ' '.repeat(currentIndent);
-				lines.splice(insertIndex, 0, `${indent}${finalKey}: "${value}"`);
-				
-				return lines;
+				if (!keyFound) {
+					// Créer la clé parente manquante
+					const indent = ' '.repeat(expectedIndent);
+					lines.splice(insertIndex, 0, `${indent}${currentKey}:`);
+					insertIndex++;
+					currentIndent = expectedIndent + 2;
+				}
 			}
 			
-			const updatedLines = addYamlKey(lines, keyParts, selectedText);
-			const updatedContent = updatedLines.join('\n');
+			// Ajouter la clé finale avec sa valeur
+			const finalKey = keyParts[keyParts.length - 1];
+			const indent = ' '.repeat(currentIndent);
+			lines.splice(insertIndex, 0, `${indent}${finalKey}: "${value}"`);
 			
-			await vscode.workspace.fs.writeFile(fileUri, Buffer.from(updatedContent));
-			vscode.window.showInformationMessage(`Clé i18n ajoutée : ${i18nKey}`);
-		} catch (err) {
-			vscode.window.showErrorMessage('Erreur lors de l’écriture dans le fichier de traduction.');
+			return lines;
+		}
+
+		// Traiter la clé i18n pour YAML (ex: homepage.greeting -> homepage: greeting:)
+		const keyParts = i18nKey.split('.');
+		
+		// Écrire la clé/valeur dans tous les fichiers de traduction
+		const results: string[] = [];
+		
+		for (const [language, filePath] of Object.entries(translationConfig)) {
+			try {
+				// Résoudre les variables dans le chemin (${workspaceFolder})
+				const resolvedPath = filePath.replace('${workspaceFolder}', '');
+				const fileUri = vscode.Uri.joinPath(wsFolders[0].uri, resolvedPath);
+				
+				let fileContent = '';
+				try {
+					fileContent = (await vscode.workspace.fs.readFile(fileUri)).toString();
+				} catch (e) {
+					// Créer le dossier translations s'il n'existe pas
+					const parentDir = vscode.Uri.joinPath(wsFolders[0].uri, 'translations');
+					try {
+						await vscode.workspace.fs.createDirectory(parentDir);
+					} catch (dirErr) {
+						// Le dossier existe déjà
+					}
+					fileContent = '';
+				}
+				
+				const lines = fileContent.split('\n');
+				const updatedLines = addYamlKey(lines, keyParts, selectedText);
+				const updatedContent = updatedLines.join('\n');
+				
+				await vscode.workspace.fs.writeFile(fileUri, Buffer.from(updatedContent));
+				results.push(`${language}: ${resolvedPath}`);
+			} catch (err) {
+				vscode.window.showErrorMessage(`Erreur lors de l'écriture dans ${language}: ${filePath}`);
+			}
+		}
+		
+		if (results.length > 0) {
+			// Remplacer le texte sélectionné par la fonction Twig
+			const twigFunction = `{{ '${i18nKey}'|trans({}, 'app') }}`;
+			await editor.edit(editBuilder => {
+				editBuilder.replace(selection, twigFunction);
+			});
+			
+			vscode.window.showInformationMessage(`Clé i18n "${i18nKey}" ajoutée dans: ${results.join(', ')} et remplacée par la fonction Twig`);
 		}
 	});
 
