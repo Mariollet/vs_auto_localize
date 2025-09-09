@@ -1,9 +1,32 @@
 # Changelog
 
-All notable changes to the "Symfony i18n Helper" extension will be documented in this file.
+All notable changes to the "Symfony Translation Shortcut" extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.2.2] - 2025-09-09 🎨 **Visual Update**
+
+### Added
+- **Custom icon**: Professional extension icon with Symfony branding
+- **Visual identity**: Better marketplace presentation and recognition
+
+### Technical
+- Added `icon.png` (128x128px) for VS Code marketplace
+- Enhanced package metadata for better discoverability
+
+## [0.2.1] - 2025-09-09 🚀 **Rebranding Release**
+
+### Changed
+- **Extension name**: Renamed from "Symfony i18n Helper" to "Symfony Translation Shortcut" 
+- **Command names**: Updated command IDs for better clarity
+- **Configuration**: Settings key changed to `symfonyTranslationShortcut.translationFilePath`
+- **Description**: More descriptive and action-oriented description
+
+### Technical
+- Command ID: `symfony-translation-shortcut.addTranslationKey`
+- Package name: `symfony-translation-shortcut`
+- Better reflects the extension's main benefit: quick shortcuts for translation workflow
 
 ## [0.2.0] - 2025-09-09 🧹 **Clean Release**
 

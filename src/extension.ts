@@ -5,7 +5,7 @@ interface TranslationConfig {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-	const i18nDisposable = vscode.commands.registerCommand('symfony-i18n-helper.addI18nKey', async () => {
+	const i18nDisposable = vscode.commands.registerCommand('symfony-translation-shortcut.addTranslationKey', async () => {
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			vscode.window.showErrorMessage('No active editor.');
@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		
 		const workspaceConfig = vscode.workspace.getConfiguration();
-		let translationConfig = workspaceConfig.get<TranslationConfig>('symfonyI18nHelper.translationFilePath');
+		let translationConfig = workspaceConfig.get<TranslationConfig>('symfonyTranslationShortcut.translationFilePath');
 		
 		if (!translationConfig) {
 			// Default configuration
@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 				
 				const settings = JSON.parse(settingsContent);
-				settings['symfonyI18nHelper.translationFilePath'] = translationConfig;
+				settings['symfonyTranslationShortcut.translationFilePath'] = translationConfig;
 				
 				const updatedContent = JSON.stringify(settings, null, 2);
 				await vscode.workspace.fs.writeFile(settingsFile, Buffer.from(updatedContent));

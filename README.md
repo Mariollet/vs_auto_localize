@@ -1,6 +1,6 @@
-# Symfony i18n Helper
+# Symfony Translation Shortcut
 
-VS Code extension to facilitate internationalization with Symfony. Quickly add translation keys to YAML files.
+Quick keyboard shortcut to add translation keys to Symfony YAML files and auto-replace with Twig functions.
 
 ## Features
 
@@ -13,7 +13,7 @@ VS Code extension to facilitate internationalization with Symfony. Quickly add t
 ## Usage
 
 1. Select text to translate in the editor
-2. Press `Ctrl+Alt+I` or run command "Add Symfony i18n Key"
+2. Press `Ctrl+Alt+I` or run command "Add Symfony Translation Key"
 3. Enter i18n key (ex: `homepage.greeting`)
 4. Key and value are automatically added to YAML files and text is replaced with Twig function
 
@@ -25,7 +25,7 @@ Manual configuration (optional) - Multi-language support:
 
 ```json
 {
-  "symfonyI18nHelper.translationFilePath": {
+  "symfonyTranslationShortcut.translationFilePath": {
     "fr": "${workspaceFolder}/translations/app.fr.yaml",
     "en": "${workspaceFolder}/translations/app.en.yaml"
   }
@@ -66,7 +66,7 @@ The extension automatically adds the same translation key to all configured file
 2. Download the latest `symfony-i18n-helper-x.x.x.vsix` file
 3. Install via VS Code:
    ```bash
-   code --install-extension symfony-i18n-helper-0.2.0.vsix
+   code --install-extension symfony-translation-shortcut-0.2.2.vsix
    ```
 
 ## Contributing

@@ -12,8 +12,8 @@
 	"typescript.tsc.autoDetect": "off",
 	"typescript.preferences.includePackageJsonAutoImports": "off",
 	
-	// Configuration Symfony i18n Helper
-	"symfonyI18nHelper.translationFilePath": {
+	// Configuration Symfony Translation Shortcut
+	"symfonyTranslationShortcut.translationFilePath": {
 		"fr": "${workspaceFolder}/translations/app.fr.yaml",
 		"en": "${workspaceFolder}/translations/app.en.yaml"
 	}

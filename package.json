@@ -1,8 +1,8 @@
 {
-  "name": "symfony-i18n-helper",
-  "displayName": "Symfony i18n Helper",
-  "description": "VS Code extension to facilitate internationalization with Symfony",
-  "version": "0.2.0",
+  "name": "symfony-translation-shortcut",
+  "displayName": "Symfony Translation Shortcut",
+  "description": "Quick keyboard shortcut to add translation keys to Symfony YAML files and auto-replace with Twig functions",
+  "version": "0.2.2",
   "publisher": "Soma",
   "author": "Mariollet",
   "license": "MIT",
@@ -20,6 +20,7 @@
   "categories": [
     "Other"
   ],
+  "icon": "icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/Mariollet/vs_auto_localize.git"
@@ -33,13 +34,13 @@
   "contributes": {
     "commands": [
       {
-        "command": "symfony-i18n-helper.addI18nKey",
-        "title": "Add Symfony i18n Key"
+        "command": "symfony-translation-shortcut.addTranslationKey",
+        "title": "Add Symfony Translation Key"
       }
     ],
     "keybindings": [
       {
-        "command": "symfony-i18n-helper.addI18nKey",
+        "command": "symfony-translation-shortcut.addTranslationKey",
         "key": "ctrl+alt+i",
         "when": "editorTextFocus"
       }
