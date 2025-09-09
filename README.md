@@ -1,26 +1,27 @@
 # Symfony i18n Helper
 
-Extension VS Code pour faciliter l'internationalisation avec Symfony. Permet d'ajouter rapidement des clés de traduction dans les fichiers YAML.
+VS Code extension to facilitate internationalization with Symfony. Quickly add translation keys to YAML files.
 
-## Fonctionnalités
+## Features
 
-- **Raccourci clavier** : `Ctrl+Alt+I` pour lancer la commande
-- **Sélection automatique** : Récupère le texte sélectionné dans l'éditeur
-- **Gestion YAML** : Ajoute les clés avec la bonne indentation et hiérarchie
-- **Configuration flexible** : Chemin du fichier de traduction configurable
+- **Keyboard shortcut**: `Ctrl+Alt+I` to launch command
+- **Automatic selection**: Gets selected text from editor
+- **YAML management**: Adds keys with proper indentation and hierarchy
+- **Multi-language support**: Updates multiple translation files simultaneously
+- **Twig integration**: Automatically replaces text with Twig translation function
 
-## Utilisation
+## Usage
 
-1. Sélectionnez le texte à traduire dans l'éditeur
-2. Appuyez sur `Ctrl+Alt+I` ou lancez la commande "Ajouter une clé i18n Symfony"
-3. Entrez la clé i18n (ex: `homepage.greeting`)
-4. La clé et la valeur sont automatiquement ajoutées au fichier YAML
+1. Select text to translate in the editor
+2. Press `Ctrl+Alt+I` or run command "Add Symfony i18n Key"
+3. Enter i18n key (ex: `homepage.greeting`)
+4. Key and value are automatically added to YAML files and text is replaced with Twig function
 
 ## Configuration
 
-L'extension crée automatiquement le fichier `.vscode/settings.json` avec la configuration par défaut lors de la première utilisation si elle n'existe pas.
+The extension automatically creates `.vscode/settings.json` with default configuration on first use if it doesn't exist.
 
-Configuration manuelle (optionnelle) - Support multi-langues :
+Manual configuration (optional) - Multi-language support:
 
 ```json
 {
@@ -31,64 +32,47 @@ Configuration manuelle (optionnelle) - Support multi-langues :
 }
 ```
 
-L'extension ajoutera automatiquement la même clé de traduction dans tous les fichiers configurés.
+The extension automatically adds the same translation key to all configured files.
 
-## Exemple d'utilisation
+## Example Usage
 
-1. **Sélectionnez** le texte à traduire dans votre template Twig :
+1. **Select** text to translate in your Twig template:
    ```twig
-   <h1>Bienvenue sur notre site</h1>
+   <h1>Welcome to our website</h1>
    ```
 
-2. **Appuyez** sur `Ctrl+Alt+I`
+2. **Press** `Ctrl+Alt+I`
 
-3. **Entrez** la clé de traduction (ex: `homepage.welcome`)
+3. **Enter** translation key (ex: `homepage.welcome`)
 
-4. **Résultat** :
-   - Le texte est remplacé par : `<h1>{{ 'homepage.welcome'|trans({}, 'app') }}</h1>`
-   - La clé est ajoutée dans tous vos fichiers YAML avec le texte original comme valeur :
+4. **Result**:
+   - Text is replaced with: `<h1>{{ 'homepage.welcome'|trans({}, 'app') }}</h1>`
+   - Key is added to all YAML files with original text as value:
      ```yaml
      # translations/app.fr.yaml
      homepage:
-       welcome: "Bienvenue sur notre site"
+       welcome: "Welcome to our website"
      
      # translations/app.en.yaml  
      homepage:
-       welcome: "Bienvenue sur notre site"
+       welcome: "Welcome to our website"
      ```
-   - ⚠️ **Important** : Vous devrez ensuite traduire manuellement (par IA) les valeurs dans chaque fichier de langue
+   - ⚠️ **Important**: You must manually translate values in each language file afterwards
 
 ## Installation
 
-Installez l'extension via le fichier `.vsix` :
-```bash
-code --install-extension symfony-i18n-helper-0.1.1.vsix
-```
+### Download from Releases
+1. Go to [Releases](https://github.com/Mariollet/vs_auto_localize/releases)
+2. Download the latest `symfony-i18n-helper-x.x.x.vsix` file
+3. Install via VS Code:
+   ```bash
+   code --install-extension symfony-i18n-helper-0.2.0.vsix
+   ```
 
-## Notes de version
+## Contributing
 
-### 0.1.1
+See [CHANGELOG.md](CHANGELOG.md) for version history and changes.
 
-- **Remplacement automatique** : Le texte sélectionné est automatiquement remplacé par `{{ 'key'|trans({}, 'app') }}`
-- **Workflow complet** : Sélection → Génération de clé → Ajout aux fichiers YAML → Remplacement par fonction Twig
+## License
 
-### 0.1.0 🚀 **Version Majeure**
-
-- **Support multi-langues** : Configuration par objet avec plusieurs fichiers de traduction
-- **Mise à jour simultanée** : La même clé est ajoutée automatiquement dans tous les fichiers configurés
-- **Configuration automatique** : Création de `.vscode/settings.json` avec exemple multi-langues
-- **Variables dynamiques** : Support de `${workspaceFolder}` dans les chemins
-
-### 0.0.3
-
-- Création automatique de `.vscode/settings.json` si non existant
-- Configuration automatique lors de la première utilisation
-
-### 0.0.2
-
-- Configuration via `.vscode/settings.json` au lieu des préférences globales VS Code
-- Amélioration de la gestion des erreurs
-
-### 0.0.1
-
-Version initiale avec support YAML et raccourci clavier.
+This extension is released under the MIT License.

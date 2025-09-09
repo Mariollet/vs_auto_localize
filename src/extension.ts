@@ -1,47 +1,27 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
 interface TranslationConfig {
     [language: string]: string;
 }
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "symfony-i18n-helper" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('symfony-i18n-helper.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Symfony i18n Helper!');
-	});
-
-	context.subscriptions.push(disposable);
-
 	const i18nDisposable = vscode.commands.registerCommand('symfony-i18n-helper.addI18nKey', async () => {
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
-			vscode.window.showErrorMessage('Aucun éditeur actif.');
+			vscode.window.showErrorMessage('No active editor.');
 			return;
 		}
 		const selection = editor.selection;
 		const selectedText = editor.document.getText(selection);
 		if (!selectedText) {
-			vscode.window.showErrorMessage('Sélectionnez le texte à traduire.');
+			vscode.window.showErrorMessage('Please select text to translate.');
 			return;
 		}
 
-		// Récupérer la configuration des fichiers de traduction depuis .vscode/settings.json
+		// Get translation files configuration
 		const wsFolders = vscode.workspace.workspaceFolders;
 		if (!wsFolders) {
-			vscode.window.showErrorMessage('Aucun dossier ouvert dans l\'espace de travail.');
+			vscode.window.showErrorMessage('No workspace folder open.');
 			return;
 		}
 		
@@ -49,60 +29,56 @@ export function activate(context: vscode.ExtensionContext) {
 		let translationConfig = workspaceConfig.get<TranslationConfig>('symfonyI18nHelper.translationFilePath');
 		
 		if (!translationConfig) {
-			// Configuration par défaut si non configuré
+			// Default configuration
 			translationConfig = {
 				"fr": "${workspaceFolder}/translations/app.fr.yaml",
 				"en": "${workspaceFolder}/translations/app.en.yaml"
 			};
 			
-			// Créer automatiquement .vscode/settings.json avec la configuration
+			// Automatically create .vscode/settings.json
 			try {
 				const vscodeDir = vscode.Uri.joinPath(wsFolders[0].uri, '.vscode');
 				const settingsFile = vscode.Uri.joinPath(vscodeDir, 'settings.json');
 				
 				let settingsContent = '{}';
 				try {
-					// Lire le fichier existant s'il existe
 					const existingContent = await vscode.workspace.fs.readFile(settingsFile);
 					settingsContent = existingContent.toString();
 				} catch (e) {
-					// Le fichier n'existe pas, créer le dossier .vscode
 					await vscode.workspace.fs.createDirectory(vscodeDir);
 				}
 				
-				// Parser et modifier le JSON
 				const settings = JSON.parse(settingsContent);
 				settings['symfonyI18nHelper.translationFilePath'] = translationConfig;
 				
-				// Écrire le fichier de configuration
 				const updatedContent = JSON.stringify(settings, null, 2);
 				await vscode.workspace.fs.writeFile(settingsFile, Buffer.from(updatedContent));
 				
-				vscode.window.showInformationMessage(`Configuration multi-langue créée dans .vscode/settings.json`);
+				vscode.window.showInformationMessage('Multi-language configuration created in .vscode/settings.json');
 			} catch (err) {
-				vscode.window.showWarningMessage(`Impossible de créer .vscode/settings.json. Utilisation de la configuration par défaut.`);
+				vscode.window.showWarningMessage('Could not create .vscode/settings.json. Using default configuration.');
 			}
 		}
 
-		// Demander la clé i18n à l'utilisateur (autocomplétion à améliorer)
+		// Ask user for i18n key
 		const i18nKey = await vscode.window.showInputBox({
-			prompt: 'Entrez la clé i18n',
+			prompt: 'Enter i18n key',
 			placeHolder: 'ex: homepage.title',
 		});
 		if (!i18nKey) {
-			vscode.window.showErrorMessage('Aucune clé i18n fournie.');
+			vscode.window.showErrorMessage('No i18n key provided.');
 			return;
 		}
 
-		// Fonction pour ajouter la clé YAML avec la bonne indentation
+		// Function to add YAML key with proper indentation
 		function addYamlKey(lines: string[], keyParts: string[], value: string): string[] {
 			let currentIndent = 0;
 			let insertIndex = lines.length;
 			
-			// Chercher si les clés parentes existent déjà
+			// Check if parent keys already exist
 			for (let i = 0; i < keyParts.length - 1; i++) {
 				const currentKey = keyParts[i];
-				const expectedIndent = i * 2; // 2 espaces par niveau
+				const expectedIndent = i * 2; // 2 spaces per level
 				let keyFound = false;
 				
 				for (let j = 0; j < lines.length; j++) {
@@ -118,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 				
 				if (!keyFound) {
-					// Créer la clé parente manquante
+					// Create missing parent key
 					const indent = ' '.repeat(expectedIndent);
 					lines.splice(insertIndex, 0, `${indent}${currentKey}:`);
 					insertIndex++;
@@ -126,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 			
-			// Ajouter la clé finale avec sa valeur
+			// Add final key with value
 			const finalKey = keyParts[keyParts.length - 1];
 			const indent = ' '.repeat(currentIndent);
 			lines.splice(insertIndex, 0, `${indent}${finalKey}: "${value}"`);
@@ -134,15 +110,14 @@ export function activate(context: vscode.ExtensionContext) {
 			return lines;
 		}
 
-		// Traiter la clé i18n pour YAML (ex: homepage.greeting -> homepage: greeting:)
+		// Process i18n key for YAML
 		const keyParts = i18nKey.split('.');
 		
-		// Écrire la clé/valeur dans tous les fichiers de traduction
+		// Write to all translation files
 		const results: string[] = [];
 		
 		for (const [language, filePath] of Object.entries(translationConfig)) {
 			try {
-				// Résoudre les variables dans le chemin (${workspaceFolder})
 				const resolvedPath = filePath.replace('${workspaceFolder}', '');
 				const fileUri = vscode.Uri.joinPath(wsFolders[0].uri, resolvedPath);
 				
@@ -150,13 +125,10 @@ export function activate(context: vscode.ExtensionContext) {
 				try {
 					fileContent = (await vscode.workspace.fs.readFile(fileUri)).toString();
 				} catch (e) {
-					// Créer le dossier translations s'il n'existe pas
 					const parentDir = vscode.Uri.joinPath(wsFolders[0].uri, 'translations');
 					try {
 						await vscode.workspace.fs.createDirectory(parentDir);
-					} catch (dirErr) {
-						// Le dossier existe déjà
-					}
+					} catch (dirErr) {}
 					fileContent = '';
 				}
 				
@@ -167,18 +139,17 @@ export function activate(context: vscode.ExtensionContext) {
 				await vscode.workspace.fs.writeFile(fileUri, Buffer.from(updatedContent));
 				results.push(`${language}: ${resolvedPath}`);
 			} catch (err) {
-				vscode.window.showErrorMessage(`Erreur lors de l'écriture dans ${language}: ${filePath}`);
+				vscode.window.showErrorMessage(`Error writing to ${language}: ${filePath}`);
 			}
 		}
 		
 		if (results.length > 0) {
-			// Remplacer le texte sélectionné par la fonction Twig
 			const twigFunction = `{{ '${i18nKey}'|trans({}, 'app') }}`;
 			await editor.edit(editBuilder => {
 				editBuilder.replace(selection, twigFunction);
 			});
 			
-			vscode.window.showInformationMessage(`Clé i18n "${i18nKey}" ajoutée dans: ${results.join(', ')} et remplacée par la fonction Twig`);
+			vscode.window.showInformationMessage(`Key "${i18nKey}" added to: ${results.join(', ')}`);
 		}
 	});
 
